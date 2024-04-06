@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateHealthCheckEntry = exports.validateOccupationalHealthcareEntry = exports.validateHospitalEntry = void 0;
+exports.toNewUser = exports.validateHealthCheckEntry = exports.validateOccupationalHealthcareEntry = exports.validateHospitalEntry = void 0;
 const types_1 = require("./types/Patient/types");
 const isString = (text) => {
     return typeof text === "string" || text instanceof String;
@@ -10,6 +10,18 @@ const parseName = (name) => {
         throw new Error("Incorrect name");
     }
     return name;
+};
+const parseUsername = (username) => {
+    if (!isString(username)) {
+        throw new Error("Incorrect username");
+    }
+    return username;
+};
+const parsePassword = (password) => {
+    if (!isString(password)) {
+        throw new Error("Incorrect password");
+    }
+    return password;
 };
 const parseSSN = (ssn) => {
     if (!isString(ssn)) {
@@ -139,4 +151,19 @@ const toNewPatientEntry = (object) => {
     }
     throw new Error("Incorrect data: some fields are missing");
 };
+const toNewUser = (object) => {
+    if (!object || typeof object !== "object") {
+        throw new Error("Incorrect or missing data");
+    }
+    if ("name" in object && "username" in object && "password" in object) {
+        const newUser = {
+            name: parseName(object.name),
+            username: parseUsername(object.username),
+            password: parsePassword(object.password),
+        };
+        return newUser;
+    }
+    throw new Error("Incorrect data: some fields are missing");
+};
+exports.toNewUser = toNewUser;
 exports.default = toNewPatientEntry;

@@ -10,15 +10,12 @@ const userSchema = new mongoose_1.default.Schema({
         type: String,
         required: true,
     },
-    email: {
+    username: {
         type: String,
         requried: true,
-        unique: true
+        unique: true,
     },
-    passwordHash: {
-        type: String,
-        required: true
-    },
+    passwordHash: String,
 });
 userSchema.set("toJSON", {
     transform: (_document, returnedObject) => {
@@ -30,4 +27,5 @@ userSchema.set("toJSON", {
     }
 });
 userSchema.plugin(mongoose_unique_validator_1.default);
-exports.default = mongoose_1.default.model("User", userSchema);
+const User = mongoose_1.default.model("User", userSchema);
+exports.default = User;

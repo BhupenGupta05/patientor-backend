@@ -62,14 +62,19 @@ router.get("/", (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(500).json({ error: "Internal Server error" });
     }
 }));
-router.get("/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/:id", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     try {
         const patient = yield patient_1.default.findById(id).populate("entries");
-        res.json(patient);
+        if (patient) {
+            res.json(patient);
+        }
+        else {
+            res.status(404).end();
+        }
     }
     catch (error) {
-        res.status(404).json({ error: "Patient not found" });
+        next(error);
     }
 }));
 router.post("/:id/entries", (req, res) => __awaiter(void 0, void 0, void 0, function* () {

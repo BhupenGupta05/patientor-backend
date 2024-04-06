@@ -8,6 +8,9 @@ const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = require("dotenv");
 const mongoose_1 = __importDefault(require("mongoose"));
 (0, dotenv_1.config)();
+const middleware_1 = __importDefault(require("./middleware"));
+const users_1 = __importDefault(require("./routes/users"));
+const login_1 = __importDefault(require("./routes/login"));
 const diagnosis_1 = __importDefault(require("./routes/diagnosis"));
 const patients_1 = __importDefault(require("./routes/patients"));
 const app = (0, express_1.default)();
@@ -22,12 +25,18 @@ mongoose_1.default.connect(process.env.MONGODB_URL)
     console.log("error connecting to MongoDB:", error.message);
 });
 app.use(express_1.default.json());
+app.use(middleware_1.default.tokenExtractor);
+app.use(middleware_1.default.requestLogger);
 app.get("/api/ping", (_req, res) => {
     console.log("someone pinged here");
     res.send("pong");
 });
+app.use("/api/users", users_1.default);
+app.use("/api/login", login_1.default);
 app.use("/api/diagnoses", diagnosis_1.default);
-app.use("/api/patients", patients_1.default);
+app.use("/api/patients", middleware_1.default.userExtractor, patients_1.default);
+app.use(middleware_1.default.unknownEndpoint);
+app.use(middleware_1.default.errorHandler);
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
