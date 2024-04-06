@@ -1,4 +1,4 @@
 node_modules
-.env
 .rest
+.env
 package-lock.json

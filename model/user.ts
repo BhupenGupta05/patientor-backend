@@ -1,20 +1,23 @@
 import mongoose from "mongoose";
 import uniqueValidator from "mongoose-unique-validator";
 
+export interface UserInterface {
+  name: string,
+  username: string,
+  passwordHash: string,
+}
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
   },
-  email: {
+  username: {
     type: String,
     requried: true,
-    unique: true
+    unique: true,
   },
-  passwordHash: {
-    type: String,
-    required: true
-  },
+  passwordHash: String,
 });
   
 userSchema.set("toJSON", {
@@ -29,4 +32,6 @@ userSchema.set("toJSON", {
 
 userSchema.plugin(uniqueValidator);
   
-export default mongoose.model("User", userSchema);
+const User = mongoose.model<UserInterface>("User", userSchema);
+
+export default User;

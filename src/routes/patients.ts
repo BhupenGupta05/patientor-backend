@@ -18,14 +18,19 @@ router.get("/", async (_req, res) => {
 });
 
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", async (req, res, next) => {
   const {id} = req.params;
 
   try {
     const patient = await Patient.findById(id).populate("entries");
-    res.json(patient);
+
+    if(patient) {
+      res.json(patient);
+    } else {
+      res.status(404).end();
+    }   
   } catch (error) {
-    res.status(404).json({ error: "Patient not found" });
+    next(error);
   }
 });
 
@@ -34,8 +39,6 @@ router.post("/:id/entries", async (req, res) => {
   const {id} = req.params;
   const{type, diagnosisCodes, ...entryData} = req.body;
   console.log(req.body);
-  
-  
 
   try {
     let validatedEntry;
@@ -98,7 +101,6 @@ router.post("/:id/entries", async (req, res) => {
   // to remove the warning
   return;
 });
-
 
 router.post("/", async (req, res) => {
   try {

@@ -1,6 +1,7 @@
 import { DiagnosisEntry } from "./types/Diagnosis/types";
 import { HospitalEntry, OccupationalHealthcareEntry, HealthCheckEntry } from "./types/Entry/types";
 import { Entry, Gender, NewPatientEntry } from "./types/Patient/types";
+import { NewUserEntry } from "./types/User/types";
 
 const isString = (text: unknown): text is string => {
   return typeof text === "string" || text instanceof String;
@@ -11,6 +12,20 @@ const parseName = (name: unknown): string => {
     throw new Error("Incorrect name");
   }
   return name;
+};
+
+const parseUsername = (username: unknown): string => {
+  if(!isString(username)) {
+    throw new Error("Incorrect username");
+  }
+  return username;
+};
+
+const parsePassword = (password: unknown): string => {
+  if(!isString(password)) {
+    throw new Error("Incorrect password");
+  }
+  return password;
 };
 
 const parseSSN = (ssn: unknown): string => {
@@ -155,6 +170,22 @@ const toNewPatientEntry = (object: unknown): NewPatientEntry => {
       entries: parseEntries(object.entries) 
     };
     return newEntry;
+  }
+  throw new Error("Incorrect data: some fields are missing");
+};
+
+export const toNewUser = (object: unknown): NewUserEntry => {
+  if(!object || typeof object !== "object") {
+    throw new Error("Incorrect or missing data");
+  }
+
+  if("name" in object && "username" in object && "password" in object) {
+    const newUser: NewUserEntry = {
+      name: parseName(object.name),
+      username: parseUsername(object.username),
+      password: parsePassword(object.password),
+    };
+    return newUser;
   }
   throw new Error("Incorrect data: some fields are missing");
 };

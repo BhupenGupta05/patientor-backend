@@ -4,6 +4,9 @@ import { config } from "dotenv";
 import mongoose from "mongoose";
 config();
 
+import middleware from "./middleware";
+import userRouter from "./routes/users";
+import loginRouter from "./routes/login";
 import diagnosisRouter from "./routes/diagnosis";
 import patientsRouter from "./routes/patients";
 
@@ -23,6 +26,8 @@ mongoose.connect(process.env.MONGODB_URL!)
   });
 
 app.use(express.json());
+app.use(middleware.tokenExtractor);
+app.use(middleware.requestLogger);
 
 
 app.get("/api/ping", (_req, res) => {
@@ -30,8 +35,13 @@ app.get("/api/ping", (_req, res) => {
   res.send("pong");
 });
 
+app.use("/api/users", userRouter);
+app.use("/api/login", loginRouter);
 app.use("/api/diagnoses", diagnosisRouter);
-app.use("/api/patients", patientsRouter);
+app.use("/api/patients", middleware.userExtractor, patientsRouter);
+
+app.use(middleware.unknownEndpoint);
+app.use(middleware.errorHandler);
 
 const PORT = process.env.PORT;
 
