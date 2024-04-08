@@ -131,6 +131,64 @@ router.post("/:id/entries", (req, res) => __awaiter(void 0, void 0, void 0, func
     // to remove the warning
     return;
 }));
+// this need to be reviewed
+router.put("/:id/entries/:entryId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id, entryId } = req.params;
+    const _b = req.body, { type, diagnosisCodes } = _b, entryData = __rest(_b, ["type", "diagnosisCodes"]);
+    try {
+        let existingEntry;
+        let updatedEntry;
+        switch (type) {
+            case "Hospital":
+                existingEntry = (0, utils_1.validateHospitalEntry)(entryData);
+                break;
+            case "OccupationalHealthcare":
+                existingEntry = (0, utils_1.validateOccupationalHealthcareEntry)(entryData);
+                break;
+            case "HealthCheck":
+                existingEntry = (0, utils_1.validateHealthCheckEntry)(entryData);
+                break;
+            default:
+                throw new Error(`Invalid entry type: ${type}`);
+        }
+        existingEntry.diagnosisCodes = diagnosisCodes;
+        existingEntry.type = type;
+        const existingPatient = yield patient_1.default.findById(id);
+        if (!existingPatient) {
+            return res.status(404).json({ error: "Patient not found" });
+        }
+        switch (existingEntry.type) {
+            case "Hospital":
+                updatedEntry = yield hopital_1.default.findById(entryId);
+                if (!updatedEntry) {
+                    throw new Error("Hospital entry not found");
+                }
+                Object.assign(updatedEntry, existingEntry);
+                break;
+            case "OccupationalHealthcare":
+                updatedEntry = yield occupation_1.default.findById(entryId);
+                if (!updatedEntry) {
+                    throw new Error("OccupationalHealthcare entry not found");
+                }
+                Object.assign(updatedEntry, existingEntry);
+                break;
+            case "HealthCheck":
+                updatedEntry = yield health_1.default.findById(entryId);
+                if (!updatedEntry) {
+                    throw new Error("HealthCheck entry not found");
+                }
+                Object.assign(updatedEntry, existingEntry);
+                break;
+            default:
+                throw new Error(`Invalid entry type: ${type}`);
+        }
+        yield updatedEntry.save();
+        return res.json(updatedEntry);
+    }
+    catch (error) {
+        return res.status(500).json({ error: "Internal server error", message: error.message });
+    }
+}));
 router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newPatientEntry = (0, utils_1.default)(req.body);

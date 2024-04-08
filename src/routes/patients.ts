@@ -102,6 +102,75 @@ router.post("/:id/entries", async (req, res) => {
   return;
 });
 
+// this need to be reviewed
+router.put("/:id/entries/:entryId", async (req, res) => {
+  const { id, entryId } = req.params;
+  const { type, diagnosisCodes, ...entryData } = req.body;
+
+  try {
+    let existingEntry: any;
+    let updatedEntry;
+
+    switch(type) {
+    case "Hospital":
+      existingEntry = validateHospitalEntry(entryData);
+      break;
+    case "OccupationalHealthcare":
+      existingEntry = validateOccupationalHealthcareEntry(entryData);
+      break;
+    case "HealthCheck":
+      existingEntry = validateHealthCheckEntry(entryData);
+      break;
+    default:
+      throw new Error(`Invalid entry type: ${type}`);
+    }
+
+    existingEntry.diagnosisCodes = diagnosisCodes;
+    existingEntry.type = type;
+
+      
+
+    const existingPatient = await Patient.findById(id);
+
+    if(!existingPatient) {
+      return res.status(404).json({ error: "Patient not found" });
+    }
+
+    switch(existingEntry.type) {
+    case "Hospital":
+      updatedEntry = await HospitalEntry.findById(entryId);
+      if (!updatedEntry) {
+        throw new Error("Hospital entry not found");
+      }
+      Object.assign(updatedEntry, existingEntry);
+      break;
+    case "OccupationalHealthcare":
+      updatedEntry = await OccupationalHealthcareEntry.findById(entryId);
+      if (!updatedEntry) {
+        throw new Error("OccupationalHealthcare entry not found");
+      }
+      Object.assign(updatedEntry, existingEntry);
+      break;
+    case "HealthCheck":
+      updatedEntry = await HealthEntry.findById(entryId);
+      if (!updatedEntry) {
+        throw new Error("HealthCheck entry not found");
+      }
+      Object.assign(updatedEntry, existingEntry);
+      break;
+    default:
+      throw new Error(`Invalid entry type: ${type}`);
+    }
+
+    await updatedEntry.save();
+
+    return res.json(updatedEntry);
+
+  } catch (error: any) {
+    return res.status(500).json({ error: "Internal server error", message: error.message });
+  }
+});
+
 router.post("/", async (req, res) => {
   try {
     const newPatientEntry = toNewPatientEntry(req.body);

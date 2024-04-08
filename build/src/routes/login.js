@@ -35,7 +35,7 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!process.env.JWT_SECRET) {
         return res.status(500).json({ error: "JWT_SECRET is not defined" });
     }
-    const token = jsonwebtoken_1.default.sign(userForToken, process.env.JWT_SECRET, { expiresIn: 60 * 60 });
+    const token = jsonwebtoken_1.default.sign(userForToken, process.env.JWT_SECRET);
     return res.status(200).send({ token, username: user.username, name: user.name });
 }));
 exports.default = router;
