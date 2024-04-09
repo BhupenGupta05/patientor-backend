@@ -1,4 +1,5 @@
 import { Request as ExpressRequest, Response, NextFunction } from "express";
+import rateLimit from "express-rate-limit";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import User from "../model/user";
 
@@ -74,6 +75,13 @@ const unknownEndpoint = (_req: CustomRequest, res: Response) => {
   res.status(404).send({ error: "unknown endpoint" });
 };
 
+export const rateLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 50,
+  message: 'You have exceeded your 50 requests per hour limit.',
+  legacyHeaders: true,
+})
+
 const errorHandler = (error: Error, _req: CustomRequest, res: Response, next: NextFunction) => {
   if (error.name === "CastError") {
     return res.status(400).send({ error: "malformatted id" });
@@ -91,5 +99,5 @@ export default {
   userExtractor,
   requestLogger, 
   unknownEndpoint,
-  errorHandler
+  errorHandler,
 };

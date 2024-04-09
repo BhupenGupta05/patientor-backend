@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 config();
 
 import middleware from "./middleware";
+import { rateLimiter } from "./middleware";
 import userRouter from "./routes/users";
 import loginRouter from "./routes/login";
 import diagnosisRouter from "./routes/diagnosis";
@@ -26,6 +27,7 @@ mongoose.connect(process.env.MONGODB_URL!)
   });
 
 app.use(express.json());
+app.use(rateLimiter);
 app.use(middleware.tokenExtractor);
 app.use(middleware.requestLogger);
 
