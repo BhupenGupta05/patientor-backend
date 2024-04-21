@@ -12,6 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.rateLimiter = void 0;
+const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const user_1 = __importDefault(require("../model/user"));
 const tokenExtractor = (req, _res, next) => {
@@ -65,6 +67,12 @@ const requestLogger = (req, _res, next) => {
 const unknownEndpoint = (_req, res) => {
     res.status(404).send({ error: "unknown endpoint" });
 };
+exports.rateLimiter = (0, express_rate_limit_1.default)({
+    windowMs: 60 * 60 * 1000,
+    limit: 50,
+    message: 'You have exceeded your 50 requests per hour limit.',
+    legacyHeaders: true,
+});
 const errorHandler = (error, _req, res, next) => {
     if (error.name === "CastError") {
         return res.status(400).send({ error: "malformatted id" });
@@ -83,5 +91,5 @@ exports.default = {
     userExtractor,
     requestLogger,
     unknownEndpoint,
-    errorHandler
+    errorHandler,
 };

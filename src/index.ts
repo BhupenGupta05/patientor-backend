@@ -40,7 +40,7 @@ app.get("/api/ping", (_req, res) => {
 app.use("/api/users", userRouter);
 app.use("/api/login", loginRouter);
 app.use("/api/diagnoses", diagnosisRouter);
-app.use("/api/patients", middleware.userExtractor, patientsRouter);
+app.use("/api/patients", middleware.tokenExtractor, middleware.userExtractor, patientsRouter);
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
